@@ -9,7 +9,7 @@ interface Props {
 
 const Container = ({ className, children }: Props) => {
 	return (
-		<div className={cn("flex items-center justify-center w-screen h-screen bg-custom-offwhite", className)}>
+		<div className={cn("flex items-center bg-white rounded-lg drop-shadow-lg text-black justify-center w-full h-full", className)}>
 			{children}
 		</div>
 	)

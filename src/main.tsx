@@ -4,15 +4,15 @@ import App from "./App";
 import "./styles.css";
 import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "sonner";
-import { UserProvider } from "./context/userContext";
+import { StaffProvider } from "./context/staffContext";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 	<React.StrictMode>
-		<UserProvider>
+		<StaffProvider>
 			<BrowserRouter>
 				<Toaster />
 				<App />
 			</BrowserRouter>
-		</UserProvider>
+		</StaffProvider>
 	</React.StrictMode>,
 );

@@ -2,3 +2,7 @@
 @tailwind variants;
 @tailwind utilities;
 @tailwind components;
+
+* {
+	font-family: sans-serif;
+}
