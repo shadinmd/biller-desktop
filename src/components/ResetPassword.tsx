@@ -1,15 +1,16 @@
-"use client"
 import { ReactNode, useState } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './shadcn/Dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../components/shadcn/Dialog'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import api, { handleAxiosError } from '../lib/api'
+import { handleAxiosError } from '../lib/api'
+import { AxiosInstance } from 'axios'
 import { toast } from 'sonner'
 import cn from '../lib/cn'
 
 interface Props {
 	children: ReactNode,
+	api: AxiosInstance,
 	staffId: string,
 	className?: string
 }
@@ -29,7 +30,7 @@ const formSchema = z.object({
 
 type formType = z.infer<typeof formSchema>
 
-const ResetPassword = ({ children, staffId, className }: Props) => {
+const ResetPassword = ({ children, api, staffId, className }: Props) => {
 
 	const { register, formState: { errors }, handleSubmit } = useForm<formType>({ resolver: zodResolver(formSchema) })
 	const [open, setOpen] = useState(false)
@@ -95,3 +96,4 @@ const ResetPassword = ({ children, staffId, className }: Props) => {
 }
 
 export default ResetPassword
+

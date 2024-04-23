@@ -1,21 +1,23 @@
-"use client"
-import { useEffect, useState } from 'react'
-import BillInterface from '../types/bill.interface'
-import { useStaff } from '../context/staffContext'
-import { toast } from 'sonner'
-import api, { handleAxiosError } from '../lib/api'
-import { Separator } from '../components/shadcn/Separator'
-import moment from 'moment'
-import { Link } from 'react-router-dom'
+import { toast } from "sonner"
+import api, { handleAxiosError } from "../lib/api"
+import { useEffect, useState } from "react"
+import { ScaleLoader } from "react-spinners"
+import BillInterface from "../types/bill.interface"
+import moment from "moment"
+import { useStaff } from "../context/staffContext"
+import Select from "../components/Select"
+import { Link } from "react-router-dom"
 
 const Bills = () => {
 
-	const { staff } = useStaff()
 	const [bills, setBills] = useState<BillInterface[]>([])
+	const [loading, setLoading] = useState(true)
+	const [sort, setSort] = useState("sort")
+	const { staff } = useStaff()
 
 	useEffect(() => {
-		if (staff._id)
-			api.get(`/bill/shop/${staff.shop}`)
+		if (staff.shop._id)
+			api.get(`/bill/shop/${staff.shop._id}?sort=${sort}`)
 				.then(({ data }) => {
 					if (data.success) {
 						setBills(data.bills)
@@ -25,61 +27,50 @@ const Bills = () => {
 				})
 				.catch(error => {
 					handleAxiosError(error)
+				}).finally(() => {
+					setLoading(false)
 				})
-	}, [staff])
+	}, [staff.shop, sort])
 
-	// const deleteBill = async (billId: string) => {
-	// 	try {
-	// 		const { data } = await api.delete(`/bill/${billId}`)
-	// 		if (data.success) {
-	// 			setBills((prev) => [...prev].filter((e) => e._id != billId))
-	// 			toast.success(data.message)
-	// 		} else {
-	// 			toast.error(data.message)
-	// 		}
-	// 	} catch (error) {
-	// 		handleAxiosError(error)
-	// 	}
-	// }
+	if (loading) {
+		return (
+			<div className="flex items-center justify-center bg-white rounded-lg drop-shadow-lg w-full h-full">
+				<ScaleLoader />
+			</div>
+		)
+	}
 
 	return (
-		<div className='flex flex-col gap-5 p-5 bg-white rounded-lg drop-shadow-lg w-full h-full'>
-			<div className='text-3xl font-bold'>Bills</div>
-			<div className='flex flex-col w-full'>
-
-				<div className='flex flex-col w-full'>
-					<div className='flex w-full text-custom-light-gray'>
-						<p className='w-full'>no</p>
-						<p className='w-full'>date</p>
-						<p className='w-full'>no of items</p>
-						<p className='w-full'>before discount</p>
-						<p className='w-full'>discount</p>
-						<p className='w-full'>total</p>
-					</div>
-					<Separator orientation='horizontal' className='bg-custom-light-gray' />
+		<div className='flex flex-col gap-1 py-3 px-5 w-full h-full'>
+			<div className='flex gap-1 w-full'>
+				<p className='flex items-center justify-center text-xl font-bold bg-white drop-shadow-lg rounded-lg p-2'>Bills</p>
+				<div className="flex items-center gap-1">
+					<Select
+						selected={sort}
+						onSelect={setSort}
+						items={["sort", "price high to low", "price low to high", "new fisrt", "old first"]}
+					/>
 				</div>
-
+			</div>
+			<div className="flex flex-col gap-1 w-full">
 				{bills.map((e, i) => (
 					<Link
 						to={`/bills/${e._id}`}
-						key={i}
-						className='flex flex-col w-full'
+						key={`staff-${i}`}
+						className="flex items-center w-full p-2 font-semibold bg-white rounded-lg drop-shadow-lg"
 					>
-						<div className='flex items-center py-2 w-full'>
-							<p className='w-full'>{i + 1}</p>
-							<p className='w-full'>{moment(e.createdAt).format("HH:mm DD/MM/YYYY")}</p>
-							<p className='w-full'>{e.products.length}</p>
-							<p className='w-full'>{e.total}</p>
-							<p className='w-full'>{e.discount}</p>
-							<p className='w-full'>{e.totalAtfterDiscount}</p>
-						</div>
-						<Separator orientation='horizontal' className='bg-custom-light-gray' />
+						<p className="w-full">{moment(e.createdAt).format("HH:mm DD/MM/YY")}</p>
+						<p className="w-full">{e.totalAtfterDiscount}₹</p>
 					</Link>
 				))}
 			</div>
 		</div>
+
 	)
 }
 
 export default Bills
+
+
+
 

@@ -1,29 +1,29 @@
-"use client"
-import { Separator } from "../components/shadcn/Separator"
-import NewStaff from "../components/NewStaff"
-import { useStaff } from "../context/staffContext"
-import api, { handleAxiosError } from "../lib/api"
-import { Icon } from "@iconify/react"
-import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { ScaleLoader } from "react-spinners"
-import { toast } from "sonner"
 import StaffInterface from "../types/staff.interface"
+import api, { handleAxiosError } from "../lib/api"
+import { toast } from "sonner"
+import NewStaff from "../components/NewStaff"
+import { Icon } from "@iconify/react"
+import { ScaleLoader } from "react-spinners"
+import cn from "../lib/cn"
+import { useStaff } from "../context/staffContext"
+import Select from "../components/Select"
+import { Link } from "react-router-dom"
 
-const Staff = () => {
+const Staffs = () => {
 
-	const { staff } = useStaff()
 	const [staffs, setStaffs] = useState<StaffInterface[]>([])
 	const [loading, setLoading] = useState(true)
 	const [search, setSearch] = useState("")
+	const [filter, setFilter] = useState("filter")
+	const { staff } = useStaff()
 
 	useEffect(() => {
-		const fetchStaffs = setTimeout(() => {
+		const timeout = setTimeout(() => {
 			if (staff.shop)
-				api.get(`staff/shop/${staff.shop}?name=${search}`)
+				api.get(`/staff/shop/${staff.shop._id}?name=${search}&filter=${filter}`)
 					.then(({ data }) => {
 						if (data.success) {
-							console.log(data.staffs)
 							setStaffs(data.staffs)
 						} else {
 							toast.error(data.message)
@@ -37,70 +37,58 @@ const Staff = () => {
 		}, 500)
 
 		return () => {
-			clearTimeout(fetchStaffs)
+			clearTimeout(timeout)
 		}
-	}, [staff.shop, search])
+	}, [staff.shop, search, filter])
 
-	const addStaff = (staff: StaffInterface) => {
-		setStaffs(prev => [...prev, staff])
+	const newStaff = (staff: StaffInterface) => {
+		setStaffs(val => [...val, staff])
 	}
 
 	if (loading) {
 		return (
-			<div className="flex items-center justify-center w-full h-full">
+			<div className="flex items-center justify-center bg-white rounded-lg drop-shadow-lg w-full h-full">
 				<ScaleLoader />
 			</div>
 		)
 	}
 
 	return (
-		<div className="flex flex-col items-center justify-start bg-white rounded-lg drop-shadow-lg w-full h-full">
-			<div className="flex flex-col gap-5 items-start h-full w-full p-5">
-				<div className="flex items-center justify-between w-full">
-					<div className="flex items-center gap-5">
-						<p className="text-3xl font-bold">Staffs</p>
-						<input
-							value={search}
-							onChange={e => setSearch(e.target.value)}
-							placeholder="Name.."
-							type="text"
-							className="outline-none border-2 px-3 py-1 rounded-lg"
-						/>
-					</div>
-					<NewStaff shopId={staff.shop} newStaff={addStaff} >
-						<Icon icon={"mdi:plus"} className="text-green-500 text-3xl" />
-					</NewStaff>
+		<div className='flex flex-col gap-1 py-3 px-5 w-full h-full'>
+			<div className="flex items-center w-full justify-between">
+				<div className="flex gap-1 items-center h-full">
+					<p className='flex items-center justify-center text-xl font-bold bg-white drop-shadow-lg rounded-lg px-2 h-full'>Staffs</p>
+					<input
+						value={search}
+						onChange={e => setSearch(e.target.value)}
+						placeholder="Search.."
+						type="text"
+						className="drop-shadow-lg outline-none rounded-lg py-2 px-3"
+					/>
+					<Select selected={filter} items={["filter", "manager", "staff"]} onSelect={setFilter} />
 				</div>
-				<div className="flex flex-col items-center w-full">
-					<div className="flex flex-col items-center w-full">
-						<div className="flex text-custom-light-gray items-center w-full">
-							<p className="w-full">Name</p>
-							<p className="w-full">type</p>
-							<p className="w-full">status</p>
-						</div>
-						<Separator orientation="horizontal" className="w-full bg-custom-light-gray" />
-					</div>
-					{staffs.map((e, i) => staff._id != e._id && (
-						<Link
-							to={`/staffs/${e._id}`}
-							key={i}
-							className="flex flex-col items-center w-full h-10"
-						>
-							<div className="flex items-center h-full w-full">
-								<p className="w-full">{e.username}</p>
-								<p className="w-full">{e.manager ? "Manger" : "staff"}</p>
-								<p className="w-full">{e.blocked ? "inactive" : "Active"}</p>
-							</div>
-							<Separator orientation="horizontal" className="w-full bg-custom-light-gray" />
-						</Link>
-					))}
-				</div>
-
+				<NewStaff className="bg-white rounded-lg drop-shadow-lg" shopId={staff.shop._id || ""} newStaff={newStaff} api={api} >
+					<Icon icon="mdi:plus" className="text-green-500 text-3xl" />
+				</NewStaff>
 			</div>
-
+			<div className="flex flex-col gap-1 w-full h-full">
+				{staffs.map((e, i) => (
+					e._id != staff._id &&
+					<Link
+						to={`/staffs/${e?._id}`}
+						key={i}
+						className="flex items-center bg-white rounded-lg drop-shadow-lg w-full p-2 font-semibold"
+					>
+						<p className="w-full">{e?.username}</p>
+						<p className={cn("w-full", e.manager ? "text-red-500" : "text-green-500")}>{e?.manager ? "manager" : "staff"}</p>
+					</Link>
+				))}
+			</div>
 		</div>
+
 	)
 }
 
-export default Staff
+export default Staffs
+
 

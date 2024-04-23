@@ -1,4 +1,3 @@
-"use client"
 import { KeyboardEvent, useEffect, useRef, useState } from "react"
 import ProductInterface from "../types/product.interface"
 import api, { handleAxiosError } from "../lib/api"
@@ -17,8 +16,8 @@ const SearchProducts = ({ addProduct }: Props) => {
 	const inputRef = useRef<HTMLInputElement>(null)
 
 	useEffect(() => {
-		if (staff.shop)
-			api.get(`/product/shop/listed/${staff.shop}?name=${search}`)
+		if (staff.shop && localStorage.getItem("token"))
+			api.get(`/product/shop/listed/${staff.shop._id}?name=${search}`)
 				.then(({ data }) => {
 					if (data.success) {
 						setProducts(data.products)
@@ -39,7 +38,7 @@ const SearchProducts = ({ addProduct }: Props) => {
 					return
 				}
 				try {
-					const { data } = await api.get(`/product/shop/listed/${staff.shop}?barcode=${barcode}`)
+					const { data } = await api.get(`/product/shop/listed/${staff.shop._id}?barcode=${barcode}`)
 					if (data.success) {
 						if (data.product)
 							addProduct(data.product)
@@ -103,3 +102,4 @@ const SearchProducts = ({ addProduct }: Props) => {
 }
 
 export default SearchProducts
+

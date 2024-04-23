@@ -6,6 +6,7 @@ interface ProductInterface {
 	listed: boolean
 	shop: string
 	price: number
+	point: number
 	stock: number
 	sold: number
 	barcode:string 

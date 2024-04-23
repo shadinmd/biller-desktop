@@ -32,7 +32,7 @@
 			"targets": "all",
 			"identifier": "in.shadinmhd.biller",
 			"icon": [
-				"icons/icon.ico"
+				"icons/icon.png"
 			]
 		}
 	}

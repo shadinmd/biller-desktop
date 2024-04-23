@@ -1,17 +1,26 @@
-"use client"
-
 import EditProduct from "../components/EditProduct"
 import { Separator } from "../components/shadcn/Separator"
 import YesNoModal from "../components/YesNoModal"
 import api, { handleAxiosError } from "../lib/api"
 import moment from "moment"
-import { useNavigate, useParams } from "react-router-dom"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 import ProductInterface from "../types/product.interface"
 import { Icon } from "@iconify/react/dist/iconify.js"
 import { ScaleLoader } from "react-spinners"
 import { useStaff } from "../context/staffContext"
+import { BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip } from "chart.js"
+import ProductGraph from "../components/ProductGraph"
+import { useNavigate, useParams } from "react-router-dom"
+
+ChartJS.register(
+	CategoryScale,
+	LinearScale,
+	BarElement,
+	Title,
+	Tooltip,
+	Legend
+)
 
 const ProductView = () => {
 
@@ -28,6 +37,7 @@ const ProductView = () => {
 		sold: 0,
 		barcode: "",
 		profit: 0,
+		point: 0,
 		createdAt: new Date(),
 	})
 
@@ -50,6 +60,7 @@ const ProductView = () => {
 			.finally(() => {
 				setLoading(false)
 			})
+
 	}, [params])
 
 	const deleteProduct = useCallback(async () => {
@@ -156,8 +167,8 @@ const ProductView = () => {
 
 					<div className="flex items-center justify-between p-4 bg-white rounded-lg drop-shadow-lg">
 						<div>
-							<p className="text-custom-light-gray">rate</p>
-							<p className="font-bold">0</p>
+							<p className="text-custom-light-gray">value</p>
+							<p className="font-bold">{product.stock * product.price}</p>
 						</div>
 						<div className="flex items-center justify-center bg-primary rounded-xl w-[40px] h-[40px]">
 							<Icon icon={"material-symbols:contract"} className="text-white text-2xl" />
@@ -196,6 +207,12 @@ const ProductView = () => {
 						<Separator className="bg-custom-light-gray w-full" orientation="horizontal" />
 
 						<div className="flex items-center justify-between">
+							<p>point:</p>
+							<p>{product.point}</p>
+						</div>
+						<Separator className="bg-custom-light-gray w-full" orientation="horizontal" />
+
+						<div className="flex items-center justify-between">
 							<p>created at:</p>
 							<p>{moment(product?.createdAt).format("DD/MM/YYYY")}</p>
 						</div>
@@ -207,7 +224,7 @@ const ProductView = () => {
 							<button onClick={e => { e.preventDefault(); toggleListing() }} className="bg-primary text-white px-6 py-2 font-bold rounded-lg">
 								{product.listed ? "Unlist" : "List"}
 							</button>
-							<EditProduct product={product} setProduct={setProduct}>
+							<EditProduct api={api} product={product} setProduct={setProduct}>
 								<div className="bg-primary text-white px-6 py-2 font-bold rounded-lg">
 									Edit
 								</div>
@@ -226,11 +243,7 @@ const ProductView = () => {
 					}
 
 				</div>
-
-				<div className="bg-white drop-shadow-lg rounded-lg w-full h-full">
-
-				</div>
-
+				<ProductGraph id={params.id!} api={api} />
 			</div>
 		</div>
 	)

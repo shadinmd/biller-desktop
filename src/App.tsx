@@ -5,40 +5,27 @@ import Sidebar from "./components/Sidebar"
 import Products from "./pages/Products"
 import Settings from "./pages/Settings"
 import Staffs from "./pages/Staffs"
-import { useStaff } from "./context/staffContext"
-import { useEffect, useState } from "react"
 import Bills from "./pages/Bills"
 import StaffView from "./pages/StaffView"
 import ProductView from "./pages/ProductView"
 import BillView from "./pages/BillView"
+import Customers from "./pages/Customers"
+import { useEffect } from "react"
+import CustomerView from "./pages/CustomerView"
 
 const App = () => {
 
 	const path = useLocation().pathname
-	const { staff } = useStaff()
-	const [items, setItems] = useState<{ title: string, to: string, icon: string }[]>([])
 
 	useEffect(() => {
-		if (staff.manager) {
-			setItems([
-				{ title: "Dashboard", to: "/", icon: "mdi:home" },
-				{ title: "Products", to: "/products", icon: "mdi:books" },
-				{ title: "Staffs", to: "/staffs", icon: "mdi:people-group" },
-				{ title: "Bills", to: "/bills", icon: "mdi:people-group" },
-				{ title: "Settings", to: "/settings", icon: "mdi:gear" }
-			])
-		} else {
-			setItems([
-				{ title: "Dashboard", to: "/", icon: "mdi:home" },
-				{ title: "Products", to: "/products", icon: "mdi:books" },
-				{ title: "Settings", to: "/settings", icon: "mdi:gear" }
-			])
-		}
-	}, [staff.manager])
+		if (path != "/login")
+			if (!localStorage.getItem("token"))
+				location.assign("/login")
+	}, [])
 
 	return (
 		<div className="flex gap-5 p-5 items-center bg-custom-offwhite h-screen w-screen">
-			{path != "/login" && <Sidebar items={items} />}
+			{path != "/login" && <Sidebar />}
 			<Routes>
 				<Route path="/" element={<Home />} />
 				<Route path="/login" element={<Login />} />
@@ -48,6 +35,8 @@ const App = () => {
 				<Route path="/staffs/:id" element={<StaffView />} />
 				<Route path="/bills" element={<Bills />} />
 				<Route path="/bills/:id" element={<BillView />} />
+				<Route path="/customers" element={<Customers />} />
+				<Route path="/customers/:id" element={<CustomerView />} />
 				<Route path="/settings" element={<Settings />} />
 			</Routes>
 		</div>

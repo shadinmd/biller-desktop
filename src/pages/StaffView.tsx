@@ -1,4 +1,3 @@
-
 "use client"
 
 import api, { handleAxiosError } from "../lib/api"
@@ -8,6 +7,7 @@ import StaffInterface from "../types/staff.interface"
 import { Icon } from "@iconify/react/dist/iconify.js"
 import ResetPassword from "../components/ResetPassword"
 import { ScaleLoader } from "react-spinners"
+import moment from "moment"
 import { useParams } from "react-router-dom"
 
 const StaffView = () => {
@@ -22,6 +22,7 @@ const StaffView = () => {
 		shop: "",
 		manager: false,
 		blocked: false,
+		createdAt: new Date()
 	})
 
 	useEffect(() => {
@@ -53,7 +54,7 @@ const StaffView = () => {
 
 	const toggleBlock = async () => {
 		try {
-			const { data } = await api.put(`/staff/block/${params.id}`, { blocked: !staff.blocked })
+			const { data } = await api.put(`/ staff / block / ${params.id}`, { blocked: !staff.blocked })
 			if (data.success) {
 				setStaff(prev => ({ ...prev, blocked: !staff.blocked }))
 				toast.success(data.message)
@@ -67,7 +68,7 @@ const StaffView = () => {
 
 	const changeManagerStatus = async () => {
 		try {
-			const { data } = await api.put(`/staff/manager/${params.id}`, { manager: !staff?.manager })
+			const { data } = await api.put(`/ staff / manager / ${params.id}`, { manager: !staff?.manager })
 			if (data.success) {
 				setStaff(prev => ({ ...prev, manager: !prev.manager }))
 				toast.success(data.message)
@@ -127,8 +128,8 @@ const StaffView = () => {
 
 					<div className="flex items-center justify-between p-4 bg-white rounded-lg drop-shadow-lg">
 						<div>
-							<p className="text-custom-light-gray">profit</p>
-							<p className="font-bold">50000</p>
+							<p className="text-custom-light-gray">started</p>
+							<p className="font-bold">{moment(staff.createdAt).format("DD-MM-YYYY")}</p>
 						</div>
 						<div className="flex items-center justify-center bg-primary rounded-xl w-[40px] h-[40px]">
 							<Icon icon={"material-symbols:contract"} className="text-white text-2xl" />
@@ -161,7 +162,7 @@ const StaffView = () => {
 			<div className="flex gap-5 items-center w-full">
 				<div className="flex font-bold items-center gap-3 p-3 bg-white rounded-lg drop-shadow-lg">
 					<p>Reset passsword</p>
-					<ResetPassword staffId={params.id!}>
+					<ResetPassword api={api} staffId={params.id!}>
 						<div className="bg-primary text-white font-bold px-6 py-2 rounded-lg drop-shadow-lg">
 							Reset
 						</div>
