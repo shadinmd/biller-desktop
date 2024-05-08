@@ -1,7 +1,9 @@
 import axios, { isAxiosError } from "axios";
 import { toast } from "sonner";
 
-const api = axios.create({ baseURL: "http://localhost:8000/api" })
+const BACKEND_URL = import.meta.env.VITE_BACKEND
+
+const api = axios.create({ baseURL: `${BACKEND_URL}/api` })
 
 api.interceptors.request.use(request => {
 	if (localStorage.getItem("token")) {
